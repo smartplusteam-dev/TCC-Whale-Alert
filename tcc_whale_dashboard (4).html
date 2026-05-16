@@ -1,0 +1,703 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c0f;
+    --bg2: #111318;
+    --bg3: #181c22;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --green: #22d47a;
+    --green2: rgba(34,212,122,0.15);
+    --red: #f05252;
+    --red2: rgba(240,82,82,0.15);
+    --gold: #f5c518;
+    --gold2: rgba(245,197,24,0.12);
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Rajdhani', sans-serif;
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: var(--font-display); font-size: 14px; }
+
+  .wrap { padding: 14px; min-height: 100vh; }
+
+  /* HEADER */
+  .hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 0.5px solid var(--border); }
+  .hdr-logo { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
+  .hdr-sub { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; margin-left: auto; }
+  .live-lbl { font-size: 11px; color: var(--green); font-family: var(--font-mono); }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 12px;
+  }
+  .fg { display: flex; flex-direction: column; gap: 4px; }
+  .fg label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: var(--font-mono); }
+  .fg input, .fg select {
+    background: var(--bg3); border: 0.5px solid var(--border2); color: var(--text);
+    border-radius: 6px; padding: 6px 10px; font-size: 13px; font-family: var(--font-display);
+    outline: none; height: 34px;
+  }
+  .fg input:focus, .fg select:focus { border-color: var(--gold); }
+  .apply-btn {
+    background: var(--gold); color: #000; border: none; border-radius: 6px;
+    padding: 0 18px; height: 34px; font-family: var(--font-display); font-weight: 700;
+    font-size: 13px; letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s;
+  }
+  .apply-btn:hover { background: #d4a800; }
+  .apply-btn:disabled { background: #555; cursor: not-allowed; }
+  .status-lbl { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-left: auto; align-self: center; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+  .stat-card {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+  }
+  .stat-val { font-size: 22px; font-weight: 700; font-family: var(--font-display); }
+  .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; font-family: var(--font-mono); }
+
+  /* MAIN GRID */
+  .main-grid { display: grid; grid-template-columns: 220px 1fr; gap: 12px; margin-bottom: 12px; }
+
+  /* SENTIMENT CARD */
+  .sent-card {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .sent-title { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-mono); }
+  .donut-wrap { position: relative; width: 110px; height: 110px; }
+  .donut-lbl { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .donut-pct { font-size: 24px; font-weight: 700; color: var(--green); font-family: var(--font-display); }
+  .donut-dir { font-size: 10px; color: var(--muted); font-family: var(--font-mono); letter-spacing: 1px; }
+  .whale-name { font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 1.5px; font-family: var(--font-display); }
+  .sent-divider { width: 100%; height: 0.5px; background: var(--border); }
+
+  /* ASSET TABLE */
+  .asset-card {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 16px; overflow-x: auto;
+  }
+  .tbl { width: 100%; border-collapse: collapse; }
+  .tbl th {
+    font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+    padding: 0 12px 10px 0; text-align: left; border-bottom: 0.5px solid var(--border);
+    font-family: var(--font-mono); white-space: nowrap;
+  }
+  .tbl td { padding: 12px 12px 12px 0; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .coin-name { font-size: 20px; font-weight: 700; color: var(--gold); font-family: var(--font-display); }
+  .coin-badge { font-size: 9px; padding: 2px 6px; border-radius: 3px; background: var(--bg3); color: var(--muted); margin-left: 6px; font-family: var(--font-mono); letter-spacing: 0.5px; border: 0.5px solid var(--border2); }
+  .bar-wrap { min-width: 200px; }
+  .bar-meta { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 5px; font-family: var(--font-mono); }
+  .bar-long-t { color: var(--green); }
+  .bar-short-t { color: var(--red); }
+  .bar-track { height: 6px; border-radius: 3px; background: var(--red); overflow: hidden; position: relative; }
+  .bar-long-fill { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.5s ease; }
+  .insuf { font-size: 11px; color: var(--muted); font-family: var(--font-mono); font-style: italic; }
+  .action-lbl { font-size: 13px; font-weight: 700; font-family: var(--font-display); letter-spacing: 0.5px; text-align: right; white-space: nowrap; }
+  .a-sbuy { color: var(--green); }
+  .a-hedge { color: var(--gold); }
+  .a-sell { color: var(--red); }
+  .a-acc { color: #22d4d4; }
+  .a-watch { color: var(--muted); }
+
+  /* CHARTS */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .chart-card {
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .chart-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .chart-ttl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-family: var(--font-mono); }
+  .chart-full { grid-column: span 2; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  .empty-state { text-align: center; padding: 30px; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+
+  @media (max-width: 600px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .main-grid { grid-template-columns: 1fr; }
+    .charts-row { grid-template-columns: 1fr; }
+    .chart-full { grid-column: span 1; }
+  }
+</style>
+
+<h2 class="sr-only">TCC Whale Alert — Crypto whale sentiment dashboard pulling live data from Google Sheets</h2>
+
+<div class="wrap">
+
+  <div class="hdr">
+    <div>
+      <div class="hdr-logo">♨️ TCC WHALE ALERT 🐳</div>
+      <div class="hdr-sub">Crypto Whale Sentiment Dashboard</div>
+    </div>
+    <div class="live-dot" title="Live"></div>
+    <div class="live-lbl">LIVE</div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="fg">
+      <label>Date</label>
+      <input type="date" id="filterDate" />
+    </div>
+    <div class="fg">
+      <label>Asset Group</label>
+      <select id="filterAsset">
+        <option value="all">All Categories</option>
+        <option value="MAJOR">Major (BTC, ETH)</option>
+        <option value="ALT">Alt Coins</option>
+      </select>
+    </div>
+    <button class="apply-btn" id="applyBtn" onclick="applyFilter()">APPLY FILTER</button>
+    <div class="status-lbl" id="statusLbl">Initializing...</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" id="sTotalTrades" style="color:var(--text)">—</div>
+      <div class="stat-lbl">Total Trades</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="sBigVol" style="color:var(--blue)">—</div>
+      <div class="stat-lbl">Big Whale Vol (USD)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="sSmallVol" style="color:var(--purple)">—</div>
+      <div class="stat-lbl">Small Whale Vol (USD)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="sWallets" style="color:var(--gold)">—</div>
+      <div class="stat-lbl">Active Wallets</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <div class="sent-card">
+      <div class="sent-title">Overall Sentiment</div>
+      <div class="donut-wrap">
+        <canvas id="bigDonut" width="110" height="110" role="img" aria-label="Big whale long/short sentiment donut chart">Big whale sentiment</canvas>
+        <div class="donut-lbl">
+          <div class="donut-pct" id="bigPct">—%</div>
+          <div class="donut-dir">LONG</div>
+        </div>
+      </div>
+      <div class="whale-name">BIG WHALE</div>
+      <div class="sent-divider"></div>
+      <div class="donut-wrap">
+        <canvas id="smallDonut" width="110" height="110" role="img" aria-label="Small whale long/short sentiment donut chart">Small whale sentiment</canvas>
+        <div class="donut-lbl">
+          <div class="donut-pct" id="smallPct">—%</div>
+          <div class="donut-dir">LONG</div>
+        </div>
+      </div>
+      <div class="whale-name">SMALL WHALE</div>
+    </div>
+
+    <div class="asset-card">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Asset</th>
+            <th>Big Whale Sentiment</th>
+            <th>Small Whale Sentiment</th>
+            <th style="text-align:right;">Action Base</th>
+          </tr>
+        </thead>
+        <tbody id="assetTbody">
+          <tr><td colspan="4" class="empty-state">Loading data from Google Sheets...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-hdr"><div class="chart-ttl">Volume by Hour (USD)</div></div>
+      <div style="position:relative;height:180px;">
+        <canvas id="hourChart" role="img" aria-label="Trade volume by hour of day bar chart">Volume by hour</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-hdr"><div class="chart-ttl">Coin Distribution (USD Vol)</div></div>
+      <div style="position:relative;height:180px;">
+        <canvas id="coinChart" role="img" aria-label="Coin distribution by USD volume doughnut chart">Coin distribution</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-hdr"><div class="chart-ttl">Long vs Short by Hour</div></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#22d47a;"></div>Long</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f05252;border:1.5px dashed #f05252;background:none;width:14px;height:3px;border-radius:0;margin-top:3px;border-width:0 0 2px;border-style:dashed;"></div>Short</div>
+      </div>
+      <div style="position:relative;height:170px;">
+        <canvas id="trendChart" role="img" aria-label="Long vs short trades by hour line chart">Long vs short trend</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-hdr"><div class="chart-ttl">Top Wallets by Volume</div></div>
+      <div style="position:relative;height:200px;">
+        <canvas id="walletChart" role="img" aria-label="Top 8 wallets by USD volume horizontal bar chart">Top wallets by volume</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row" id="dateRow" style="display:none;">
+    <div class="chart-card chart-full">
+      <div class="chart-hdr"><div class="chart-ttl">Daily Volume Trend</div></div>
+      <div style="position:relative;height:180px;">
+        <canvas id="dateChart" role="img" aria-label="Daily volume trend line chart">Daily volume trend</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-hdr"><div class="chart-ttl">Big Whale: Long vs Short by Coin</div></div>
+      <div style="position:relative;height:180px;">
+        <canvas id="bigCoinBar" role="img" aria-label="Big whale long vs short per coin grouped bar chart">Big whale per coin</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-hdr"><div class="chart-ttl">Small Whale: Long vs Short by Coin</div></div>
+      <div style="position:relative;height:180px;">
+        <canvas id="smallCoinBar" role="img" aria-label="Small whale long vs short per coin grouped bar chart">Small whale per coin</canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const SHEET_ID = '1U4nJ09BZFTnDn7e6y2CnF8quV4736VYmST-mKgFlj2E';
+const BIG_GID = '0';
+const SMALL_GID = '1040890918';
+const MAJOR = ['BTC','ETH'];
+
+let bigRaw = [], smallRaw = [];
+const chartInstances = {};
+
+// ── JSONP loader: works from file:// without CORS issues ─────────────────
+// Google Visualization API supports ?tqx=out:json&callback=fnName via <script> tag injection
+function loadSheetJSONP(gid) {
+  return new Promise((resolve, reject) => {
+    const cbName = '__gvizCb_' + gid + '_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      script.remove();
+      reject(new Error('Timeout loading GID ' + gid));
+    }, 15000);
+
+    window[cbName] = function(response) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      script.remove();
+      try {
+        // response.table.rows / .cols
+        const table = response.table;
+        if (!table) return reject(new Error('No table in response for GID ' + gid));
+        const cols = table.cols.map(c => c.label || c.id || '');
+        const rows = (table.rows || []).map(row => {
+          const obj = {};
+          (row.c || []).forEach((cell, i) => {
+            obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? String(cell.v) : '') : '';
+          });
+          return obj;
+        });
+        resolve(rows);
+      } catch(e) { reject(e); }
+    };
+
+    script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&callback=${cbName}&gid=${gid}`;
+    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error('Script load failed for GID ' + gid)); };
+    document.head.appendChild(script);
+  });
+}
+
+function parseTS(ts) {
+  if (!ts) return null;
+  ts = ts.trim().replace(/"/g, '');
+  if (!ts) return null;
+
+  // Format 1: Google Visualization JSONP → "Date(2026,4,15,10,1,5)" (month is 0-based)
+  const gvizMatch = ts.match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)$/);
+  if (gvizMatch) {
+    const [,yr,mon,day,hr=0,min=0,sec=0] = gvizMatch.map(Number);
+    return new Date(yr, mon, day, hr, min, sec); // month already 0-based
+  }
+
+  // Format 2: "D/M/YYYY HH:MM:SS" or "DD/MM/YYYY HH:MM:SS"
+  const sp = ts.split(' ');
+  const dp = sp[0].split('/');
+  if (dp.length < 3) return null;
+  let day = parseInt(dp[0]), mon = parseInt(dp[1]) - 1, yr = parseInt(dp[2]);
+  // Buddhist Era: year > 2400
+  if (yr > 2400) yr -= 543;
+  if (yr < 2000 || yr > 2100) return null;
+  const tp = (sp[1] || '0:0:0').split(':');
+  const dt = new Date(yr, mon, day, parseInt(tp[0])||0, parseInt(tp[1])||0, parseInt(tp[2])||0);
+  if (isNaN(dt.getTime())) return null;
+  return dt;
+}
+
+function parseRow(r) {
+  const usdRaw = (r['USD Value'] || r['usd_value'] || '0').toString().replace(/[^0-9.\-]/g,'');
+  return {
+    timestamp: parseTS(r['Timestamp'] || r['timestamp']),
+    wallet: (r['Wallet'] || r['wallet'] || '').trim(),
+    coin: (r['Coin'] || r['coin'] || '').trim().toUpperCase(),
+    direction: (r['Direction'] || r['direction'] || '').trim().toUpperCase(),
+    usdValue: parseFloat(usdRaw) || 0,
+    hour: parseInt(r['Hour'] || r['hour'] || 0),
+    dayOfWeek: parseInt(r['DayOfWeek'] || r['dayofweek'] || 0),
+    price: parseFloat(r['Price'] || r['price'] || 0),
+  };
+}
+
+async function loadCSV(gid) {
+  const rawRows = await loadSheetJSONP(gid);
+  console.log(`GID ${gid}: ${rawRows.length} raw rows from JSONP`);
+  if (rawRows.length > 0) console.log('Sample cols:', Object.keys(rawRows[0]));
+  if (rawRows.length > 0) console.log('Sample row:', rawRows[0]);
+  const rows = rawRows.map(parseRow).filter(r => r.timestamp && !isNaN(r.timestamp.getTime()) && r.coin && r.direction);
+  console.log(`GID ${gid}: ${rows.length} valid rows after parse`);
+  return rows;
+}
+
+function filterDate(data, dateStr) {
+  if (!dateStr) return data;
+  // dateStr from <input type="date"> is always YYYY-MM-DD
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return data.filter(r => {
+    const t = r.timestamp;
+    if (!t || isNaN(t.getTime())) return false;
+    return t.getFullYear() === y && (t.getMonth() + 1) === m && t.getDate() === d;
+  });
+}
+
+function calcSent(data) {
+  const coins = [...new Set(data.map(r => r.coin))].filter(Boolean).sort();
+  const out = {};
+  for (const coin of coins) {
+    const cd = data.filter(r => r.coin === coin);
+    const longs = cd.filter(r => r.direction === 'LONG').length;
+    out[coin] = { longs, shorts: cd.length - longs, total: cd.length, longPct: cd.length ? longs / cd.length : 0 };
+  }
+  return out;
+}
+
+function actionBase(bLP, bSP, sLP, sSP, bInsuf) {
+  if (bInsuf) {
+    if (sLP >= 0.60) return ['ACCUMULATING', 'a-acc'];
+    if (sSP > 0.55) return ['SELL PRESSURE', 'a-sell'];
+    return ['WATCH', 'a-watch'];
+  }
+  if (bLP >= 0.70 && sLP >= 0.60) return ['STRONG BUY', 'a-sbuy'];
+  if (bSP > bLP && sSP > sLP) return ['SELL PRESSURE', 'a-sell'];
+  if (bSP > bLP) return ['HEDGING / WATCH', 'a-hedge'];
+  if (sLP >= 0.60) return ['ACCUMULATING', 'a-acc'];
+  return ['HEDGING / WATCH', 'a-hedge'];
+}
+
+function fmtUSD(v) {
+  if (v >= 1e9) return '$' + (v/1e9).toFixed(2) + 'B';
+  if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return '$' + (v/1e3).toFixed(1) + 'K';
+  return '$' + Math.round(v);
+}
+
+function destroyChart(id) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+}
+
+const GC = { gridColor: 'rgba(255,255,255,0.05)', tickColor: '#6b7280', tickFont: { family: "'JetBrains Mono',monospace", size: 10 } };
+
+function makeBar(id, labels, data, color, horizontal) {
+  destroyChart(id);
+  const canvas = document.getElementById(id);
+  chartInstances[id] = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: color + 'cc', borderColor: color, borderWidth: 1, borderRadius: 3 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: horizontal ? 'y' : 'x',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: GC.tickColor, font: GC.tickFont, autoSkip: true, maxTicksLimit: horizontal ? 5 : 12, maxRotation: 0 }, grid: { color: GC.gridColor }, border: { display: false } },
+        y: { ticks: { color: GC.tickColor, font: GC.tickFont }, grid: { color: horizontal ? 'transparent' : GC.gridColor }, border: { display: false } }
+      }
+    }
+  });
+}
+
+function makeLine(id, labels, datasets) {
+  destroyChart(id);
+  const canvas = document.getElementById(id);
+  chartInstances[id] = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: GC.tickColor, font: GC.tickFont, autoSkip: true, maxTicksLimit: 12, maxRotation: 0 }, grid: { color: GC.gridColor }, border: { display: false } },
+        y: { ticks: { color: GC.tickColor, font: GC.tickFont }, grid: { color: GC.gridColor }, border: { display: false } }
+      }
+    }
+  });
+}
+
+function makeDoughnut(canvasId, longPct, shortPct) {
+  destroyChart(canvasId);
+  const canvas = document.getElementById(canvasId);
+  chartInstances[canvasId] = new Chart(canvas, {
+    type: 'doughnut',
+    data: { datasets: [{ data: [longPct, shortPct], backgroundColor: ['#22d47a', '#f05252'], borderWidth: 0, borderRadius: 2 }] },
+    options: { responsive: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 700 } }
+  });
+}
+
+function makeGroupedBar(id, labels, longData, shortData) {
+  destroyChart(id);
+  const canvas = document.getElementById(id);
+  chartInstances[id] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Long', data: longData, backgroundColor: '#22d47acc', borderColor: '#22d47a', borderWidth: 1, borderRadius: 3 },
+        { label: 'Short', data: shortData, backgroundColor: '#f05252cc', borderColor: '#f05252', borderWidth: 1, borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { color: '#6b7280', font: { family: "'JetBrains Mono',monospace", size: 10 }, boxWidth: 10, padding: 8 } }
+      },
+      scales: {
+        x: { ticks: { color: GC.tickColor, font: GC.tickFont, maxRotation: 30 }, grid: { display: false }, border: { display: false } },
+        y: { ticks: { color: GC.tickColor, font: GC.tickFont }, grid: { color: GC.gridColor }, border: { display: false } }
+      }
+    }
+  });
+}
+
+function makePie(id, labels, data, colors) {
+  destroyChart(id);
+  const canvas = document.getElementById(id);
+  chartInstances[id] = new Chart(canvas, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true, position: 'right',
+          labels: { color: '#9ca3af', font: { family: "'JetBrains Mono',monospace", size: 10 }, boxWidth: 10, padding: 6 }
+        }
+      }
+    }
+  });
+}
+
+function renderSentiment(big, small, filterAsset) {
+  const bigL = big.filter(r => r.direction === 'LONG').length;
+  const bigT = big.length;
+  const smL = small.filter(r => r.direction === 'LONG').length;
+  const smT = small.length;
+  const bigLP = bigT > 0 ? Math.round(bigL / bigT * 100) : 0;
+  const smLP = smT > 0 ? Math.round(smL / smT * 100) : 0;
+  document.getElementById('bigPct').textContent = bigLP + '%';
+  document.getElementById('smallPct').textContent = smLP + '%';
+  makeDoughnut('bigDonut', bigLP, 100 - bigLP);
+  makeDoughnut('smallDonut', smLP, 100 - smLP);
+
+  const bigSent = calcSent(big);
+  const smSent = calcSent(small);
+  const allCoins = [...new Set([...Object.keys(bigSent), ...Object.keys(smSent)])].sort();
+  const coins = filterAsset === 'all' ? allCoins : allCoins.filter(c => (MAJOR.includes(c) ? 'MAJOR' : 'ALT') === filterAsset);
+
+  const tbody = document.getElementById('assetTbody');
+  if (!coins.length) { tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No data for selected filters</td></tr>'; return; }
+
+  tbody.innerHTML = coins.map(coin => {
+    const b = bigSent[coin] || { longPct: 0, total: 0 };
+    const s = smSent[coin] || { longPct: 0, total: 0 };
+    const bL = Math.round(b.longPct * 100), bS = 100 - bL;
+    const sL = Math.round(s.longPct * 100), sS = 100 - sL;
+    const bInsuf = b.total < 5;
+    const sInsuf = s.total < 5;
+    const cat = MAJOR.includes(coin) ? 'MAJOR' : 'ALT';
+    const [aLabel, aCls] = actionBase(b.longPct, 1 - b.longPct, s.longPct, 1 - s.longPct, bInsuf);
+
+    const bigCol = bInsuf
+      ? `<span class="insuf">— Insufficient Data —</span>`
+      : `<div class="bar-wrap"><div class="bar-meta"><span class="bar-long-t">Long (${bL}%)</span><span class="bar-short-t">Short (${bS}%)</span></div><div class="bar-track"><div class="bar-long-fill" style="width:${bL}%"></div></div></div>`;
+    const smCol = sInsuf
+      ? `<span class="insuf">— Insufficient Data —</span>`
+      : `<div class="bar-wrap"><div class="bar-meta"><span class="bar-long-t">Long (${sL}%)</span><span class="bar-short-t">Short (${sS}%)</span></div><div class="bar-track"><div class="bar-long-fill" style="width:${sL}%"></div></div></div>`;
+
+    return `<tr>
+      <td><span class="coin-name">${coin}</span><span class="coin-badge">${cat}</span></td>
+      <td>${bigCol}</td>
+      <td>${smCol}</td>
+      <td><span class="action-lbl ${aCls}">${aLabel}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCharts(big, small) {
+  const all = [...big.map(r => ({...r, wt:'big'})), ...small.map(r => ({...r, wt:'small'}))];
+
+  const bigVol = big.reduce((s,r) => s + r.usdValue, 0);
+  const smVol = small.reduce((s,r) => s + r.usdValue, 0);
+  const wallets = new Set(all.map(r => r.wallet)).size;
+  document.getElementById('sTotalTrades').textContent = all.length.toLocaleString();
+  document.getElementById('sBigVol').textContent = fmtUSD(bigVol);
+  document.getElementById('sSmallVol').textContent = fmtUSD(smVol);
+  document.getElementById('sWallets').textContent = wallets.toLocaleString();
+
+  const hourVol = Array(24).fill(0);
+  const hourL = Array(24).fill(0), hourS = Array(24).fill(0);
+  for (const r of all) {
+    const h = r.hour;
+    if (h >= 0 && h < 24) {
+      hourVol[h] += r.usdValue;
+      if (r.direction === 'LONG') hourL[h]++; else if (r.direction === 'SHORT') hourS[h]++;
+    }
+  }
+  const hlbls = Array.from({length:24}, (_,i) => i.toString().padStart(2,'0') + 'h');
+  makeBar('hourChart', hlbls, hourVol.map(v => Math.round(v/1000)), '#3b82f6', false);
+  makeLine('trendChart', hlbls, [
+    { label: 'Long', data: hourL, borderColor: '#22d47a', backgroundColor: '#22d47a20', fill: true, tension: 0.35, pointRadius: 2, borderWidth: 2 },
+    { label: 'Short', data: hourS, borderColor: '#f05252', backgroundColor: '#f0525220', fill: true, tension: 0.35, pointRadius: 2, borderWidth: 2, borderDash: [5,3] }
+  ]);
+
+  const coinVol = {};
+  for (const r of all) { if (r.coin) coinVol[r.coin] = (coinVol[r.coin] || 0) + r.usdValue; }
+  const sortedCoins = Object.entries(coinVol).sort((a,b) => b[1]-a[1]).slice(0,8);
+  const pieColors = ['#3b82f6','#22d47a','#f5c518','#f05252','#8b5cf6','#06b6d4','#f97316','#a1a1aa'];
+  makePie('coinChart', sortedCoins.map(c=>c[0]), sortedCoins.map(c=>Math.round(c[1]/1000)), pieColors);
+
+  const wVol = {};
+  for (const r of all) { if (r.wallet) wVol[r.wallet] = (wVol[r.wallet] || 0) + r.usdValue; }
+  const topW = Object.entries(wVol).sort((a,b) => b[1]-a[1]).slice(0,8);
+  makeBar('walletChart', topW.map(w => w[0].slice(0,6) + '…'), topW.map(w => Math.round(w[1]/1000)), '#8b5cf6', true);
+
+  const dateVol = {};
+  for (const r of all) { if (!r.timestamp) continue; const k = r.timestamp.toISOString().slice(0,10); dateVol[k] = (dateVol[k]||0) + r.usdValue; }
+  const sortedDates = Object.keys(dateVol).sort();
+  if (sortedDates.length > 1) {
+    document.getElementById('dateRow').style.display = '';
+    makeLine('dateChart', sortedDates, [
+      { label: 'Vol (K USD)', data: sortedDates.map(d => Math.round(dateVol[d]/1000)), borderColor: '#f5c518', backgroundColor: '#f5c51820', fill: true, tension: 0.35, pointRadius: 3, borderWidth: 2 }
+    ]);
+  } else {
+    document.getElementById('dateRow').style.display = 'none';
+  }
+
+  const bigSent = calcSent(big), smSent = calcSent(small);
+  const commonCoins = [...new Set([...Object.keys(bigSent), ...Object.keys(smSent)])].sort();
+  makeGroupedBar('bigCoinBar', commonCoins, commonCoins.map(c => (bigSent[c] || {longs:0}).longs || 0), commonCoins.map(c => (bigSent[c] || {shorts:0}).shorts || 0));
+  makeGroupedBar('smallCoinBar', commonCoins, commonCoins.map(c => (smSent[c] || {longs:0}).longs || 0), commonCoins.map(c => (smSent[c] || {shorts:0}).shorts || 0));
+}
+
+async function applyFilter() {
+  const dateStr = document.getElementById('filterDate').value;
+  const fa = document.getElementById('filterAsset').value;
+  const btn = document.getElementById('applyBtn');
+  btn.disabled = true;
+  document.getElementById('statusLbl').textContent = 'Filtering...';
+  try {
+    let big = bigRaw, sm = smallRaw;
+    if (dateStr) { big = filterDate(bigRaw, dateStr); sm = filterDate(smallRaw, dateStr); }
+    if (fa !== 'all') { big = big.filter(r => (MAJOR.includes(r.coin) ? 'MAJOR' : 'ALT') === fa); sm = sm.filter(r => (MAJOR.includes(r.coin) ? 'MAJOR' : 'ALT') === fa); }
+    renderSentiment(big, sm, fa);
+    renderCharts(big, sm);
+    document.getElementById('statusLbl').textContent = `${(big.length + sm.length).toLocaleString()} records`;
+  } catch(e) { document.getElementById('statusLbl').textContent = 'Error: ' + e.message; }
+  btn.disabled = false;
+}
+
+async function init() {
+  document.getElementById('statusLbl').textContent = 'Loading sheets...';
+  try {
+    const [b, s] = await Promise.all([loadCSV(BIG_GID), loadCSV(SMALL_GID)]);
+    bigRaw = b; smallRaw = s;
+
+    // Default date = latest date found in data
+    const allDates = [...b, ...s]
+      .map(r => r.timestamp)
+      .filter(t => t && !isNaN(t.getTime()))
+      .map(t => t.toISOString().slice(0,10));
+    const latestDate = allDates.sort().reverse()[0] || new Date().toISOString().slice(0,10);
+    document.getElementById('filterDate').value = latestDate;
+
+    document.getElementById('statusLbl').textContent = `Loaded ${(b.length + s.length).toLocaleString()} total records`;
+    await applyFilter();
+  } catch(e) {
+    document.getElementById('statusLbl').textContent = 'Load error: ' + e.message;
+    console.error(e);
+  }
+}
+
+window.applyFilter = applyFilter;
+
+// ── DEBUG BAR (shows on first load, click to dismiss) ─────────────────────
+function showDebug(bigRows, smallRows) {
+  let panel = document.getElementById('debugPanel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'debugPanel';
+    panel.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0a0c0f;border-top:1px solid #22d47a;padding:10px 16px;font-family:monospace;font-size:11px;color:#22d47a;z-index:9999;cursor:pointer;';
+    document.body.appendChild(panel);
+  }
+  const fmt = r => r ? `${r.timestamp?.toISOString().replace('T',' ').slice(0,19)} | ${r.coin} | ${r.direction} | $${r.usdValue} | hr=${r.hour}` : 'none';
+  panel.innerHTML =
+    '<b style="color:#f5c518">DEBUG — click to dismiss</b> &nbsp;|&nbsp; ' +
+    '🐳 BigWhale: <b>' + bigRows.length + '</b> rows | sample: ' + fmt(bigRows[0]) + ' &nbsp;|&nbsp; ' +
+    '🐟 SmallWhale: <b>' + smallRows.length + '</b> rows | sample: ' + fmt(smallRows[0]);
+  panel.onclick = () => panel.remove();
+}
+
+async function init() {
+  document.getElementById('statusLbl').textContent = 'Loading sheets...';
+  try {
+    const [b, s] = await Promise.all([loadCSV(BIG_GID), loadCSV(SMALL_GID)]);
+    bigRaw = b; smallRaw = s;
+    showDebug(b, s);
+    const allDates = [...b, ...s]
+      .map(r => r.timestamp)
+      .filter(t => t && !isNaN(t.getTime()))
+      .map(t => t.toISOString().slice(0,10));
+    const latestDate = allDates.sort().reverse()[0] || new Date().toISOString().slice(0,10);
+    document.getElementById('filterDate').value = latestDate;
+    document.getElementById('statusLbl').textContent = `Loaded ${(b.length + s.length).toLocaleString()} total records`;
+    await applyFilter();
+  } catch(e) {
+    document.getElementById('statusLbl').textContent = 'Load error: ' + e.message;
+    console.error(e);
+  }
+}
+
+init();
+</script>
